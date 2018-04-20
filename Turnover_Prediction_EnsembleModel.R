@@ -72,7 +72,7 @@ myDataTransformed$Gender.Male <- NULL
 myDataTransformed$OverTime.No <- NULL
 
 # Converting the dependent variable back to categorical
-myDataTransformed$Attrition <- factor(myDataTransformed$Attrition, levels = c(0,1), labels = c("No", "Yes"))
+myDataTransformed$Attrition <- factor(myDataTransformed$Attrition, levels = c(1,0), labels = c("Yes", "No"))
 
 # Centering and scaling data
 preProcValues <- preProcess(myDataTransformed, method = c("center", "scale")) 
@@ -238,7 +238,10 @@ model_preds$ensemble <- ens_preds
 caTools::colAUC(model_preds, test$Attrition)
 
 # Confusion matrix for ensemble model (on testing dataset)
-confusionMatrix(data = ifelse(model_preds$ensemble > 0.5,"Yes", "No"), reference = test$Attrition, positive = "Yes")
+threshold <- 0.5
+pred <- factor(ifelse(model_preds$ensemble > threshold, "Yes", "No") )
+pred <- relevel(pred, "Yes")   # you may or may not need this; I did
+confusionMatrix(pred, reference = test$Attrition, positive = "Yes")
 
 # Plotting distribution of prediction scores grouped by known outcome for testing data
 testPredData <- data.frame(atRisk = test$Attrition, pred = model_preds$ensemble)  
@@ -280,6 +283,7 @@ liftDfTest$lift.y <- round(liftDfTest$lift.y,2)
 mean(liftDfTest[which(liftDfTest$lift.x == 0.10),2])
 
 # Plotting gain chart with various threshold values for testing data
+GAINperfTest <- performance(predTest, "tpr", "rpp")
 plot(GAINperfTest, colorize=T, print.cutoffs.at=seq(0,1,by=0.1), text.adj=c(-0.2,1.7), ylab="Proportion of detected events", 
      xlab="Proportion of population")
 
