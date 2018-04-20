@@ -24,6 +24,7 @@ library(Amelia)
 library(RANN)
 library(gbm)
 library(randomForest)
+library(xgboost)
 
 #=================================================================
 # Uploadign data
@@ -116,7 +117,7 @@ predictors <- Churn_Pred_Profile$optVariables[1:20]
 #=================================================================
 
 # Listing possible models
-names(getModelInfo()) # For more details see http://topepo.github.io/caret/available-models.html
+# names(getModelInfo()) # For more details see http://topepo.github.io/caret/available-models.html
 
 # Creating reusable trainControl object
 set.seed(1234)
@@ -136,10 +137,11 @@ model_list <- caretList(
   trControl=fitControl,
   metric = "ROC",
   tuneList=list(
-    gbm = caretModelSpec(method="gbm", tuneLength = 3), 
-    rf = caretModelSpec(method="rf", tuneLength = 3),
-    nnet = caretModelSpec(method="nnet", tuneLength = 3),
-    glmnet = caretModelSpec(method="glmnet", tuneLength = 3)
+    xgbTree = caretModelSpec(method="xgbTree", tuneLength = 5),
+    gbm = caretModelSpec(method="gbm", tuneLength = 5), 
+    rf = caretModelSpec(method="rf", tuneLength = 5),
+    nnet = caretModelSpec(method="nnet", tuneLength = 5),
+    glmnet = caretModelSpec(method="glmnet", tuneLength = 5)
     )
 )
 
@@ -192,8 +194,9 @@ modelCor(resamples(model_list))
 
 varImp <- lapply(model_list, varImp, scale = T)
 print(varImp)
-plot(varImp$rf, main="")
+plot(varImp$xgb, main="")
 plot(varImp$gbm, main="")
+plot(varImp$rf, main="")
 plot(varImp$glmnet, main="")
 plot(varImp$nnet, main="")
 
