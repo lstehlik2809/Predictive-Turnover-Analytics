@@ -1,2 +1,2 @@
 # Predictive-Turnover-Analytics
-Modeling employee turnover using ensemble of gbm, rf, glmnet and nnet models.  
+Modeling employee turnover using ensemble of xgb, gbm, rf, glmnet and nnet models.  
